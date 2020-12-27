@@ -31,8 +31,12 @@ public class DonHang implements Serializable {
 	Integer maDonHang;
 	String ngayDatHang;
 	String diaChi;
+	String nguoiNhan;
+	String dienThoai;
 	String ghiChu;
 	Double tongTien;
+	String trangThai;
+	String thongTinThanhToan;
 
 	@ManyToOne
 	@JoinColumn(name = "maKhachHang")
@@ -97,4 +101,36 @@ public class DonHang implements Serializable {
 		this.ghiChu = ghiChu;
 	}
 
+
+	public String getNguoiNhan() {
+		return this.nguoiNhan;
+	}
+
+	public void setNguoiNhan(String nguoiNhan) {
+		this.nguoiNhan = nguoiNhan;
+	}
+
+	public String getDienThoai() {
+		return this.dienThoai;
+	}
+
+	public void setDienThoai(String dienThoai) {
+		this.dienThoai = dienThoai;
+	}
+
+	public String getTrangThai() {
+		return this.trangThai;
+	}
+
+	public void setTrangThai(String trangThai) {
+		this.trangThai = trangThai;
+	}
+
+	public String getThongTinThanhToan() {
+		return this.thongTinThanhToan;
+	}
+
+	public void setThongTinThanhToan(String thongTinThanhToan) {
+		this.thongTinThanhToan = thongTinThanhToan;
+	}
 }

@@ -2,10 +2,13 @@ package com.estore.service;
 
 import com.estore.utils.Utils;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import javax.servlet.http.HttpServletRequest;
 
 public class VnpayService {
 
@@ -73,5 +76,49 @@ public class VnpayService {
         queryUrl += "&vnp_SecureHashType=SHA256&vnp_SecureHash=" + vnp_SecureHash;
 
         return this.pay_url + "?" + queryUrl;
+    }
+
+    public boolean verifyRequest(HttpServletRequest request) throws UnsupportedEncodingException {
+        Map fields = new HashMap();
+		for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
+			String fieldName = (String) params.nextElement();
+			String fieldValue = request.getParameter(fieldName);
+			if ((fieldValue != null) && (fieldValue.length() > 0)) {
+				fields.put(fieldName, fieldValue);
+			}
+		}
+
+		String vnp_SecureHash = request.getParameter("vnp_SecureHash");
+		if (fields.containsKey("vnp_SecureHashType")) {
+			fields.remove("vnp_SecureHashType");
+		}
+		if (fields.containsKey("vnp_SecureHash")) {
+			fields.remove("vnp_SecureHash");
+        }
+
+		return this.hashAllFields(fields).equals(vnp_SecureHash);
+    }
+
+    private String hashAllFields(Map fields) throws UnsupportedEncodingException {
+        // create a list and sort it
+        List fieldNames = new ArrayList(fields.keySet());
+        Collections.sort(fieldNames);
+        // create a buffer for the md5 input and add the secure secret first
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.hash_secret);
+        Iterator itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = (String) itr.next();
+            String fieldValue = (String) fields.get(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                sb.append(fieldName);
+                sb.append("=");
+                sb.append(URLDecoder.decode(fieldValue,"UTF-8"));
+            }
+            if (itr.hasNext()) {
+                sb.append("&");
+            }
+        }
+        return Utils.sha256(sb.toString());
     }
 }

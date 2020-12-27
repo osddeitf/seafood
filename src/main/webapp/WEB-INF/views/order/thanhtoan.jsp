@@ -138,27 +138,27 @@
 								<div class="form-group">
 									<label>Tài khoản</label>
 									<form:input path="khachHang.maKhachHang" class="form-control"
-										type="text" />
+										type="text" readonly="true"/>
 								</div>
 								
 								<div class="form-group">
 									<label>Địa chỉ giao hàng</label>
-									<form:input path="diaChi" type="text" class="form-control" />
+									<form:input required="" path="diaChi" type="text" class="form-control" />
 								</div>
 
 								<div class="form-group">
 									<label>Người nhận</label>
-									<form:input path="" type="text" class="form-control" />
+									<form:input required="" path="nguoiNhan" type="text" class="form-control" />
 								</div>
 
 								<div class="form-group">
 									<label>Điện thoại người nhận</label>
-									<form:input path="" type="text" class="form-control" />
+									<form:input required="" path="dienThoai" type="text" class="form-control" />
 								</div>
 
 								<div class="form-group">
 									<label>Tổng tiền</label>
-									<form:input path="tongTien" type="text" class="form-control" />
+									<form:input path="tongTien" type="text" class="form-control" readonly="true"/>
 								</div>
 								<div class="form-group">
 									<label>Ghi chú </label>
@@ -171,7 +171,7 @@
 									</form:button>
 								</div>
 								<img id="vnpay" src="/assets/user/100004/images/vnpay_logo.jpg" alt="VnPayl-Logo" width="50px" height="50px">
-									Vnpay
+									VNPAY
 								</img>
 							</div>
 						</div>

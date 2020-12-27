@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpSession;
@@ -124,10 +121,11 @@ public class ShoppingCartController {
 		Date date = new Date();
 		donHang.setNgayDatHang(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(date));
 		donHang.setTongTien(cart.getAmount());
+		donHang.setTrangThai("Đang xử lý");
+
 		dao.create(donHang, details);
 
-		String ip = Utils.getIpAddress(req);
-		return "redirect:" + vnpayService.getPaymentURL(donHang.getMaDonHang().toString(), ip, donHang.getTongTien().intValue());
+		// Mail notification
 		// KhachHang khachHang = (KhachHang) session.getAttribute("khachHang");
 		// String from = khachHang.getEmail();
 		// String to = "vutrananh98hn@gmail.com";
@@ -136,13 +134,61 @@ public class ShoppingCartController {
 		// MailInfo mail = new MailInfo(from, to, subject, body);
 		// mailler.send(mail);
 		// cart.clear();
-		// return "redirect:/dathang/danhsach";
+
+		String ip = Utils.getIpAddress(req);
+		return "redirect:" + vnpayService.getPaymentURL(donHang.getMaDonHang().toString(), ip, donHang.getTongTien().intValue());
 	}
 
 	/** Vnpay IPN */
-	@GetMapping("/dathang/thanhtoan/ipn")
-	public String vnpayIPN() {
-		return "";
+	@GetMapping("/vnpay/ipn")
+	@ResponseBody
+	public Map<String, String> vnpayIPN(HttpServletRequest request) throws IOException {
+		Map<String, String> response = new HashMap<>();
+
+		if (vnpayService.verifyRequest(request)) {
+
+			Integer id = Integer.parseInt(request.getParameter("vnp_TxnRef"));
+			DonHang donHang = dao.findById(id);
+			//Kiem tra chu ky OK
+			/* Kiem tra trang thai don hang trong DB: checkOrderStatus, 
+			- Neu trang thai don hang OK, tien hanh cap nhat vao DB, tra lai cho VNPAY RspCode=00
+			- Neu trang thai don hang (da cap nhat roi) => khong cap nhat vao DB, tra lai cho VNPAY RspCode=02
+			*/
+			boolean checkOrderStatus = donHang.getThongTinThanhToan() == null;
+
+			if (checkOrderStatus) {
+				if ("00".equals(request.getParameter("vnp_ResponseCode"))) {
+					//Xu ly thanh toan thanh cong
+					donHang.setTrangThai("Thành công");
+					donHang.setThongTinThanhToan(
+						"VNPAY " +
+						request.getParameter("vnp_CardType") +
+						" " + 
+						request.getParameter("vnp_TransactionNo") +
+						" - " +
+						request.getParameter("vnp_BankCode") +
+						" " +
+						request.getParameter("vnp_BankTranNo")
+					);
+				} else {
+					//Xu ly thanh toan khong thanh cong
+					donHang.setTrangThai("Thất bại");
+				}
+				
+				dao.update(donHang);
+				response.put("RspCode", "00");
+				response.put("Message", "Confirm Success");
+			} else {
+				//Don hang nay da duoc cap nhat roi, Merchant khong cap nhat nua (Duplicate callback)
+				response.put("RspCode", "02");
+				response.put("Message", "Order already confirmed");
+			}
+			
+		} else {
+			response.put("RspCode", "97");
+			response.put("Message", "Invalid Checksum");
+		}
+		return response;
 	}
 
 	@GetMapping("/dathang/danhsach")
