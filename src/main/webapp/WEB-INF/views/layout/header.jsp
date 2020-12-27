@@ -323,8 +323,7 @@
 									SearchProduct() {
 			var key=$( '#txtsearch').val();
 			if
-									(key== '' || key== 'Tìm
-									kiếm...') {
+									(key== '' || key== 'Tìm kiếm...') {
 				$('#txtsearch').focus();
 				return;
 			}
@@ -334,8 +333,7 @@
 		function SearchProduct2() {
 			var key=$(
 									'#txtsearch2').val();
-			if (key== '' || key== 'Tìm
-									kiếm...') {
+			if (key== '' || key== 'Tìm kiếm...') {
 				$('#txtsearch2').focus();
 				return;
 			}

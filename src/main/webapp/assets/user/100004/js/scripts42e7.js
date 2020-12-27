@@ -138,7 +138,7 @@ function getCartAjax() {
 			$('#cartform').show();
 			$('.line-item:not(.original)').remove();*/
 			jQuery('.cart_header_top_box').append('<div class="cart_box_wrap"></div>');
-			jQuery.each(cart.items, function(i  item) {
+			jQuery.each(cart.items, function(i, item) {
 				var total_price = 0;
 				total_price = item.quantity * item.price;
 				div = $('.original').clone().removeClass('original').appendTo('.cart_box_wrap');
@@ -182,16 +182,16 @@ function getCartAjax() {
 				var variant_id = $(this).data('id');
 				minus_quantity($(this),variant_id);
 			});*/
-			jQuery('.cart_header_top_box').append('<div class="total_cart"><span>Tổng tiền: </span><span class="total_price pull-right">' + Haravan.formatMoney(cart.total_price  '') + "₫" + '</span></div>');
+			jQuery('.cart_header_top_box').append('<div class="total_cart"><span>Tổng tiền: </span><span class="total_price pull-right">' + Haravan.formatMoney(cart.total_price + '') + "₫" + '</span></div>');
 			jQuery('.cart_header_top_box').append('<div class="cart-buttons clearfix"><a href="/cart" class="btn-cart">Xem giỏ hàng</a><a href="/checkout" class="btn-check-out"></a></div>');
-			jQuery('.cart_header').find('.box_text .cart_header_count span').html('('   cart.item_count + ')');
+			jQuery('.cart_header').find('.box_text .cart_header_count span').html('(' + cart.item_count + ')');
 			jQuery('.cart_header').find('.box_text .cart_price').html(Haravan.formatMoney(cart.total_price, '') + "₫");
 		}
 		else {
 			/*$('#cart_popup #exampleModalLabel').html('Giỏ hàng của bạn đang trống. Mời bạn tiếp tục mua hàng.');
 			$('#cartform').hide();*/
 			jQuery('.cart_header').find('.box_text .cart_header_count span').html('(' + cart.item_count + ')');
-			jQuery('.cart_header').find('.box_text .cart_price').html(Haravan.formatMoney(cart.total_price, ''  + "₫");
+			jQuery('.cart_header').find('.box_text .cart_price').html(Haravan.formatMoney(cart.total_price, ''  + "₫"));
 			jQuery('.cart_header_top_box').html('<div class="cart_empty">Giỏ hàng của bạn vẫn chưa có sản phẩm nào.</div>');
 		}
 	});
