@@ -65,6 +65,7 @@ CREATE TABLE Users(
     SoDT VARCHAR(10),
     NhomQuyen INT NOT NULL-- 0: admin, 1:NhanVien, 2: Khách HANG 
 );
+Insert into Users values('admin','abc123','Vũ',True,'1998-12-18 00:00:00.000','Hà Nội','vutrananh111@gmail.com','0343423398',0);
 
 -- Bang DonHang
 CREATE TABLE DonHang(
@@ -92,6 +93,9 @@ CREATE TABLE AnhBia(
     MaAB int PRIMARY KEY AUTO_INCREMENT NOT NULL,
     ImgUrl VARCHAR(200)
 );
+Insert into AnhBia values(1,'slider_1.jpg');
+Insert into AnhBia values(2,'slider_2.jpg');
+Insert into AnhBia values(3,'slider_3.jpg');
 
 -- Khachhang-- 
 CREATE TABLE KhachHang(
