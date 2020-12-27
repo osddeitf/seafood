@@ -29,10 +29,10 @@ public class PaymentController {
 	@Autowired
 	private PaypalService paypalService;
 	
-	@GetMapping("/")
-	public String index(){
-		return "home/paypal";
-	}
+	// @GetMapping("/")
+	// public String index(){
+	// 	return "home/paypal";
+	// }
 	
 	@PostMapping("/pay")
 	public String pay(HttpServletRequest request,@RequestParam("tongTien") double tongTien ){
