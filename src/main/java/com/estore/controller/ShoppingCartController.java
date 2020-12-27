@@ -1,5 +1,6 @@
 package com.estore.controller;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,6 +33,8 @@ import com.estore.entity.KhachHang;
 import com.estore.entity.SanPham;
 import com.estore.service.CartService;
 import com.estore.service.MailService;
+import com.estore.service.VnpayService;
+import com.estore.utils.Utils;
 
 @Controller
 public class ShoppingCartController {
@@ -52,6 +56,9 @@ public class ShoppingCartController {
 
 	@Autowired
 	MailService mailler;
+
+	@Autowired
+	VnpayService vnpayService;
 
 	@ResponseBody
 	@RequestMapping("/giohang/capnhap/{id}/{qty}")
@@ -92,13 +99,7 @@ public class ShoppingCartController {
 
 	@GetMapping("/dathang/thanhtoan")
 	public String showForm(@ModelAttribute("donHang") DonHang donHang) {
-
 		KhachHang khachHang = (KhachHang) session.getAttribute("khachHang");
-
-		Date date = new Date();
-		DateFormat dateFormat = null;
-		dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		donHang.setNgayDatHang(dateFormat.format(date));
 
 		donHang.setKhachHang(khachHang);
 		donHang.setTongTien(cart.getAmount());
@@ -106,7 +107,7 @@ public class ShoppingCartController {
 	}
 
 	@PostMapping("/dathang/thanhtoan")
-	public String purchase(Model model, @ModelAttribute("donHang") DonHang donHang) throws MessagingException {
+	public String purchase(HttpServletRequest req, @ModelAttribute("donHang") DonHang donHang) throws MessagingException, IOException {
 		Collection<SanPham> list = cart.getItems();
 		List<DonHangChiTiet> details = new ArrayList<>();
 		for (SanPham sanPham : list) {
@@ -116,20 +117,32 @@ public class ShoppingCartController {
 			detail.setGiaBan(sanPham.getGiaGoc());
 			detail.setSoLuong(sanPham.getSoLuong());
 			detail.setKhuyenMai(sanPham.getKhuyenMai());
-			detail.setTongTien(cart.getAmount());
+			detail.setTongTien(sanPham.getSoLuong() * sanPham.getGiaGoc() *(1-sanPham.getKhuyenMai()));
 			details.add(detail);
-
 		}
+
+		Date date = new Date();
+		donHang.setNgayDatHang(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(date));
+		donHang.setTongTien(cart.getAmount());
 		dao.create(donHang, details);
-		KhachHang khachHang = (KhachHang) session.getAttribute("khachHang");
-		String from = khachHang.getEmail();
-		String to = "vutrananh98hn@gmail.com";
-		String subject = "Thông tin đặt hàng";
-		String body = "Khách hàng " + khachHang.getHoTen() + "đã đặt hàng";
-		MailInfo mail = new MailInfo(from, to, subject, body);
-		mailler.send(mail);
-		cart.clear();
-		return "redirect:/dathang/danhsach";
+
+		String ip = Utils.getIpAddress(req);
+		return "redirect:" + vnpayService.getPaymentURL(donHang.getMaDonHang().toString(), ip, donHang.getTongTien().intValue());
+		// KhachHang khachHang = (KhachHang) session.getAttribute("khachHang");
+		// String from = khachHang.getEmail();
+		// String to = "vutrananh98hn@gmail.com";
+		// String subject = "Thông tin đặt hàng";
+		// String body = "Khách hàng " + khachHang.getHoTen() + "đã đặt hàng";
+		// MailInfo mail = new MailInfo(from, to, subject, body);
+		// mailler.send(mail);
+		// cart.clear();
+		// return "redirect:/dathang/danhsach";
+	}
+
+	/** Vnpay IPN */
+	@GetMapping("/dathang/thanhtoan/ipn")
+	public String vnpayIPN() {
+		return "";
 	}
 
 	@GetMapping("/dathang/danhsach")
